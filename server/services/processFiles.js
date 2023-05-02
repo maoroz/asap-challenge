@@ -2,19 +2,27 @@ const axios = require("axios");
 const secretHeader = { Authorization: "Bearer aSuperSecretKey" };
 
 module.exports = async (req, res) => {
+  const fileName = req.query.fileName;
+  let filesNames = [];
+
   const response = {
     errors: [],
     files: [],
   };
 
-  // Getting all the secret files
-  const secretFiles = await axios({
-    method: "get",
-    url: "https://echo-serv.tbxnet.com/v1/secret/files",
-    headers: secretHeader,
-  });
-  const filesNames = secretFiles.data.files;
-  // Foe each of them, get the data
+  if (fileName) {
+    filesNames = [fileName];
+  } else {
+    // Getting all the secret files
+    const secretFiles = await axios({
+      method: "get",
+      url: "https://echo-serv.tbxnet.com/v1/secret/files",
+      headers: secretHeader,
+    });
+
+    filesNames = secretFiles.data.files;
+  }
+  // For each of them, get the data
   for (let file of filesNames) {
     try {
       const csvData = await axios({
